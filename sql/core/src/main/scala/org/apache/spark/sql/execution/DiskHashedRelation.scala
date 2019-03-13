@@ -79,7 +79,11 @@ private[sql] class DiskPartition (
     * @param row the [[Row]] we are adding
     */
   def insert(row: Row) = {
-    /* IMPLEMENT THIS METHOD */
+    data.add(row)
+    if(measurePartitionSize() >=  blockSize){
+      spillPartitionToDisk()
+      data.clear()
+    }
   }
 
   /**
@@ -153,6 +157,10 @@ private[sql] class DiskPartition (
     */
   def closeInput() = {
     /* IMPLEMENT THIS METHOD */
+    if(!data.isEmpty()){
+      spillPartitionToDisk()
+    }
+    outStream.close();
     inputClosed = true
   }
 
