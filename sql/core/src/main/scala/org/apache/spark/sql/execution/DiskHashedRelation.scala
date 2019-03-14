@@ -53,11 +53,12 @@ protected [sql] final class GeneralDiskHashedRelation(partitions: Array[DiskPart
 
   override def getIterator() = {
     /* IMPLEMENT THIS METHOD */
-    null
+    partitions.iterator
   }
 
   override def closeAllPartitions() = {
     /* IMPLEMENT THIS METHOD */
+    partitions.foreach(_.closePartition())
   }
 }
 
@@ -127,12 +128,10 @@ private[sql] class DiskPartition (
 
       override def next() = {
         /* IMPLEMENT THIS METHOD */
-        null
       }
 
       override def hasNext() = {
         /* IMPLEMENT THIS METHOD */
-        false
       }
 
       /**
@@ -143,7 +142,6 @@ private[sql] class DiskPartition (
         */
       private[this] def fetchNextChunk(): Boolean = {
         /* IMPLEMENT THIS METHOD */
-        false
       }
     }
   }
@@ -157,10 +155,11 @@ private[sql] class DiskPartition (
     */
   def closeInput() = {
     /* IMPLEMENT THIS METHOD */
-    if(!data.isEmpty()){
+    if (!data.isEmpty) {
       spillPartitionToDisk()
+      data.clear()
     }
-    outStream.close();
+    outStream.close()
     inputClosed = true
   }
 
@@ -198,6 +197,14 @@ private[sql] object DiskHashedRelation {
               size: Int = 64,
               blockSize: Int = 64000) = {
     /* IMPLEMENT THIS METHOD */
-    null
+    val partitions = Array.tabulate(size)(n => new DiskPartition(n.toString, blockSize))
+
+    while(input.hasNext) {
+      val next = input.next()
+      val key = keyGenerator(next).hashCode() % size
+      partitions(key).insert(next)
+    }
+    partitions.foreach(_.closeInput())
+    new GeneralDiskHashedRelation(partitions)
   }
 }
