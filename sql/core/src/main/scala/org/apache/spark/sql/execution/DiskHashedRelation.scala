@@ -126,13 +126,23 @@ private[sql] class DiskPartition (
       var byteArray: Array[Byte] = null
 
       override def next() = {
-        /* IMPLEMENT THIS METHOD */
-        null
+        if(currentIterator.hasNext){
+          currentIterator.next()
+        }else if(chunkSizeIterator.hasNext){
+          fetchNextChunk()
+          currentIterator.next()
+        }else {
+          null
+        }
       }
 
       override def hasNext() = {
-        /* IMPLEMENT THIS METHOD */
-        false
+        if(currentIterator.hasNext || chunkSizeIterator.hasNext){
+          true
+        } else {
+          false
+        }
+
       }
 
       /**
@@ -142,8 +152,12 @@ private[sql] class DiskPartition (
         * @return true unless the iterator is empty.
         */
       private[this] def fetchNextChunk(): Boolean = {
-        /* IMPLEMENT THIS METHOD */
-        false
+        if(chunkSizeIterator.hasNext){
+          currentIterator = getListFromBytes(CS143Utils.getNextChunkBytes(inStream, chunkSizeIterator.next(), CS143Utils.getBytesFromList(data))).iterator.asScala
+          true
+        }else {
+          false
+        }
       }
     }
   }
@@ -156,7 +170,6 @@ private[sql] class DiskPartition (
     * also be closed.
     */
   def closeInput() = {
-    /* IMPLEMENT THIS METHOD */
     if(!data.isEmpty()){
       spillPartitionToDisk()
     }
