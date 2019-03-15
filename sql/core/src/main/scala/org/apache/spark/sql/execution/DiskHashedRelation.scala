@@ -80,6 +80,9 @@ private[sql] class DiskPartition (
     * @param row the [[Row]] we are adding
     */
   def insert(row: Row) = {
+    if(inputClosed){
+      throw new SparkException("Should not be inserting when input is closed.")
+    }
     data.add(row)
     if(measurePartitionSize() >=  blockSize){
       spillPartitionToDisk()
