@@ -129,7 +129,7 @@ object CS143Utils {
     */
   def getUdfFromExpressions(expressions: Seq[Expression]): ScalaUdf = {
     /* IMPLEMENT THIS METHOD */
-    null
+    expressions.reverseIterator.find(_.isInstanceOf[ScalaUdf]).map(_.asInstanceOf[ScalaUdf]).orNull
   }
 
   /**
