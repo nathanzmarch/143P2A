@@ -111,7 +111,7 @@ case class PartitionProject(projectList: Seq[Expression], child: SparkPlan) exte
 
       def next() = {
         /* IMPLEMENT THIS METHOD */
-        cachingIterator.next
+        if (cachingIterator.hasNext) cachingIterator.next else null
       }
 
       /**
