@@ -101,7 +101,6 @@ case class PartitionProject(projectList: Seq[Expression], child: SparkPlan) exte
     /* IMPLEMENT THIS METHOD */
     val hashedRelation: DiskHashedRelation = DiskHashedRelation(input, keyGenerator,4,64000)
     val partitions: Iterator[DiskPartition] = hashedRelation.getIterator()
-    var diskPartition:DiskPartition = null
     var cachingIterator: Iterator[Row] = null
 
     new Iterator[Row] {
