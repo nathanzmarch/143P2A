@@ -99,16 +99,20 @@ case class PartitionProject(projectList: Seq[Expression], child: SparkPlan) exte
     val keyGenerator = CS143Utils.getNewProjection(projectList, child.output)
 
     /* IMPLEMENT THIS METHOD */
+    val hashedRelation: DiskHashedRelation = DiskHashedRelation(input, keyGenerator,4,64000)
+    val partitions: Iterator[DiskPartition] = hashedRelation.getIterator()
+    var diskPartition:DiskPartition = null
+    var cachingIterator: Iterator[Row] = null
 
     new Iterator[Row] {
       def hasNext() = {
         /* IMPLEMENT THIS METHOD */
-        false
+        if (cachingIterator != null && cachingIterator.hasNext) true else fetchNextPartition
       }
 
       def next() = {
         /* IMPLEMENT THIS METHOD */
-        null
+        cachingIterator.next
       }
 
       /**
@@ -119,7 +123,11 @@ case class PartitionProject(projectList: Seq[Expression], child: SparkPlan) exte
         */
       private def fetchNextPartition(): Boolean  = {
         /* IMPLEMENT THIS METHOD */
-        false
+        if (partitions.hasNext) {
+          cachingIterator = CS143Utils.generateCachingIterator(projectList, child.output)(partitions.next.getData)
+          cachingIterator.hasNext
+        }
+        else false
       }
     }
   }
