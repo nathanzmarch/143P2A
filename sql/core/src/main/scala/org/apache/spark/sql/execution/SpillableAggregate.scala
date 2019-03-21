@@ -55,14 +55,15 @@ case class SpillableAggregate(
 
   /** Physical aggregator generated from a logical expression.  */
   private[this] val aggregator: ComputedAggregate = aggregateExpressions.flatMap { agg =>
-    agg.collect {
-      case a: AggregateExpression =>
-        ComputedAggregate(
-          a,
-          BindReferences.bindReference(a, childOutput),
-          AttributeReference(s"aggResult:$a", a.dataType, a.nullable)())
-    }
-  } // IMPLEMENT ME
+      agg.collect {
+        case a: AggregateExpression =>
+          ComputedAggregate(
+            a,
+            BindReferences.bindReference(a, child.output),
+            AttributeReference(s"aggResult:$a", a.dataType, a.nullable)())
+      }
+    }.head
+  // IMPLEMENT ME
 
   /** Schema of the aggregate.  */
   private[this] val aggregatorSchema: AttributeReference = aggregator.resultAttribute
@@ -132,12 +133,12 @@ case class SpillableAggregate(
 
       def hasNext() = {
         /* IMPLEMENT THIS METHOD */
-        false
+        aggregateResult.hasNext
       }
 
       def next() = {
         /* IMPLEMENT THIS METHOD */
-        null
+        aggregateResult.next
       }
 
       /**
