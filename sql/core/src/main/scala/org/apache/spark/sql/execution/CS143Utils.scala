@@ -263,20 +263,18 @@ object AggregateIteratorGenerator {
       val postAggregateProjection = CS143Utils.getNewProjection(resultExpressions, inputSchema)
 
       def hasNext() = {
-        input.hasNext
         /* IMPLEMENT THIS METHOD */
-        // false
+        input.hasNext
       }
 
       def next() = {
-        if(input.hasNext){
-          val row = input.next()
-          val relatedData = postAggregateProjection(row._1)
-
-          Row.fromSeq(row._2 ++ relatedData)
-        }
         /* IMPLEMENT THIS METHOD */
-        else null
+        val inpcombo = input.next()
+        val row = inpcombo._1
+        val aggFun = inpcombo._2
+        val rgd = postAggregateProjection(row)
+        aggFun.update(row)
+        new JoinedRow(row, rgd).copy()
       }
     }
   }
