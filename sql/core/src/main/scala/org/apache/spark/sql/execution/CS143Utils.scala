@@ -231,7 +231,7 @@ object CachingIteratorGenerator {
       def next() = {
         /* IMPLEMENT THIS METHOD */
         if (input.hasNext) {
-          val row = input.next()
+          val row = input.next
 
           var projectedUDF: Row = null
           val key = cacheKeyProjection(row)
@@ -269,12 +269,15 @@ object AggregateIteratorGenerator {
 
       def next() = {
         /* IMPLEMENT THIS METHOD */
-        val inpcombo = input.next()
+        val inpcombo = input.next
         val row = inpcombo._1
-        val aggFun = inpcombo._2
-        val rgd = postAggregateProjection(row)
-        aggFun.update(row)
-        new JoinedRow(row, rgd).copy()
+        val aggFun: AggregateFunction = inpcombo._2
+
+        val aggregateResult = new GenericMutableRow(1)
+        aggregateResult(0) = aggFun.eval(EmptyRow)
+
+        val joinedRow = new JoinedRow4
+        postAggregateProjection(joinedRow(aggregateResult, row))
       }
     }
   }

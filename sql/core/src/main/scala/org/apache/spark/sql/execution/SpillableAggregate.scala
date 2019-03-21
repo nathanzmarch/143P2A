@@ -70,7 +70,7 @@ case class SpillableAggregate(
   // IMPLEMENT ME
 
   /** Creates a new aggregator instance.  */
-  private[this] def newAggregatorInstance(): AggregateFunction = aggregator.aggregate.newInstance()
+  private[this] def newAggregatorInstance(): AggregateFunction = aggregator.aggregate.newInstance
   // IMPLEMENT ME
 
   /** Named attributes used to substitute grouping attributes in the final result. */
@@ -149,12 +149,12 @@ case class SpillableAggregate(
       private def aggregate(): Iterator[Row] = {
         /* IMPLEMENT THIS METHOD */
         while (data.hasNext) {
-          val row = data.next()
+          val row = data.next
           val group = groupingProjection(row)
           var buffer: AggregateFunction = currentAggregationTable(group)
 
           if (buffer == null) {
-            buffer = newAggregatorInstance()
+            buffer = newAggregatorInstance
             currentAggregationTable.update(group, buffer)
           }
           buffer.update(row)

@@ -58,7 +58,7 @@ protected [sql] final class GeneralDiskHashedRelation(partitions: Array[DiskPart
 
   override def closeAllPartitions() = {
     /* IMPLEMENT THIS METHOD */
-    partitions.foreach(_.closePartition())
+    partitions.foreach(_.closePartition)
   }
 }
 
@@ -218,11 +218,11 @@ private[sql] object DiskHashedRelation {
     val partitions = Array.tabulate(size)(n => new DiskPartition(n.toString, blockSize))
 
     while(input.hasNext) {
-      val next = input.next()
+      val next = input.next
       val key = keyGenerator(next).hashCode() % size
       partitions(key).insert(next)
     }
-    partitions.foreach(_.closeInput())
+    partitions.foreach(_.closeInput)
     new GeneralDiskHashedRelation(partitions)
   }
 }
