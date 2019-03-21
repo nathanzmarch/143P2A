@@ -148,7 +148,20 @@ case class SpillableAggregate(
         */
       private def aggregate(): Iterator[Row] = {
         /* IMPLEMENT THIS METHOD */
-        null
+        while (data.hasNext) {
+          val row = data.next()
+          val group = groupingProjection(row)
+          var buffer: AggregateFunction = currentAggregationTable(group)
+
+          if (buffer == null) {
+            buffer = newAggregatorInstance()
+            currentAggregationTable.update(group, buffer)
+          }
+          buffer.update(row)
+        }
+
+        val aggItGenerator = AggregateIteratorGenerator(resultExpression, Seq(aggregatorSchema) ++ namedGroups.map(_._2))
+        aggItGenerator(currentAggregationTable.iterator)
       }
 
       /**
